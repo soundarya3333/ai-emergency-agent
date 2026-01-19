@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f6f8;
+      background: #101316;
       padding: 40px;
     }
     .card {
@@ -58,19 +58,20 @@
 const BACKEND_URL = "https://ai-emergency-agent-ck3n.onrender.com";
 
 async function send() {
-  const type = document.getElementById("type").value;
-  const danger = document.getElementById("danger").checked;
   const output = document.getElementById("output");
 
-  output.textContent = "Loading… (cold start may take ~30s)";
+  output.textContent = "Sending request...";
 
   try {
-    const res = await fetch(`${BACKEND_URL}/plan`, {
+    const res = await fetch(`${BACKEND_URL}/escalate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
-        emergency_type: type,
-        immediate_danger: danger
+        event: "fire",
+        confidence: 0.9,
+        status: "high_risk"
       })
     });
 
@@ -81,6 +82,7 @@ async function send() {
   }
 }
 </script>
+
 
 </body>
 </html>
