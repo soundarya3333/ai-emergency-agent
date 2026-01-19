@@ -4,12 +4,12 @@ from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
 from models import EmergencyInput, EmergencyPlan
 
-# ─── IMPORTANT: Tell pydantic-ai to use OpenRouter ──────────────────────────
-os.environ["OPENAI_API_KEY"] = os.environ.get("OPENROUTER_API_KEY", "")
+# ─── Configure OpenRouter as OpenAI-compatible provider ─────────────────────
 os.environ["OPENAI_BASE_URL"] = "https://openrouter.ai/api/v1"
+# The client will automatically use OPENROUTER_API_KEY from environment
 
-# Model initialization - only model name
-model = OpenAIChatModel("mistralai/mixtral-8x22b-instruct")
+# Using a free model as requested
+model = OpenAIChatModel("nvidia/nemotron-3-nano-30b-a3b:free")
 
 agent = Agent(
     model=model,
@@ -43,6 +43,7 @@ Rules:
 async def generate_emergency_plan(data: EmergencyInput) -> EmergencyPlan:
     """
     Generate emergency response plan using AI with maximum 500 tokens limit.
+    Uses a free model via OpenRouter.
     """
     prompt = f"""
 Emergency type: {data.emergency_type}
@@ -55,11 +56,11 @@ Be extremely concise.
     try:
         result = await agent.run(
             prompt,
-            max_tokens=500,           # ← This limits the response length
-            temperature=0.3,          # Lower = more focused/consistent
+            max_tokens=500,           # Hard limit on output tokens
+            temperature=0.3,          # Lower = more consistent & focused
         )
         
-        # Clean up any possible extra whitespace
+        # Clean up output
         output_text = result.output.strip()
         
         parsed = json.loads(output_text)
@@ -67,7 +68,7 @@ Be extremely concise.
     
     except Exception as e:
         print("AI generation failed:", str(e))
-        # Fallback response - safe default plan
+        # Safe fallback response
         return EmergencyPlan(
             immediate_actions=[
                 "Move to a safe location immediately",
