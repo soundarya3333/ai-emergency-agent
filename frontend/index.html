@@ -2,87 +2,315 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Emergency Guide</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
-      font-family: Arial, sans-serif;
-      background: #101316;
-      padding: 40px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .card {
-      max-width: 500px;
-      margin: auto;
-      background: white;
-      padding: 24px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    select, button {
+    
+    .container {
+      max-width: 600px;
       width: 100%;
-      padding: 10px;
-      margin-top: 12px;
-      font-size: 16px;
     }
-    pre {
-      background: #111;
-      color: #0f0;
+    
+    .card {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 8px;
+      font-size: 28px;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    select {
+      width: 100%;
       padding: 12px;
-      margin-top: 20px;
-      overflow-x: auto;
+      font-size: 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+    
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    
+    .checkbox-group label {
+      margin: 0;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .output {
+      margin-top: 24px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    
+    .output h3 {
+      color: #333;
+      margin-bottom: 12px;
+      font-size: 18px;
+    }
+    
+    .output-section {
+      margin-bottom: 16px;
+    }
+    
+    .output-section h4 {
+      color: #667eea;
+      font-size: 14px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .output-section ul {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .output-section li {
+      padding: 8px 0;
+      color: #555;
+      line-height: 1.6;
+    }
+    
+    .output-section li:before {
+      content: "✓ ";
+      color: #667eea;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    
+    .output-section.donts li:before {
+      content: "✗ ";
+      color: #e74c3c;
+    }
+    
+    .loading {
+      text-align: center;
+      color: #667eea;
+      padding: 20px;
+    }
+    
+    .error {
+      background: #fee;
+      border-left-color: #e74c3c;
+      color: #c33;
+    }
+    
+    .disclaimer {
+      background: #fff9e6;
+      border-left-color: #ffc107;
+      padding: 12px;
+      margin-top: 16px;
+      font-size: 13px;
+      color: #856404;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <h2>🚨 Emergency Assistant</h2>
+  <div class="container">
+    <div class="card">
+      <h1>🚨 AI Emergency Assistant</h1>
+      <p class="subtitle">Get instant AI-powered guidance for emergency situations</p>
 
-    <label>Emergency Type</label>
-    <select id="type">
-      <option value="fire">Fire</option>
-      <option value="flood">Flood</option>
-      <option value="earthquake">Earthquake</option>
-    </select>
+      <div class="form-group">
+        <label for="type">Emergency Type</label>
+        <select id="type">
+          <option value="fire">🔥 Fire</option>
+          <option value="flood">🌊 Flood</option>
+          <option value="earthquake">🏚️ Earthquake</option>
+        </select>
+      </div>
 
-    <label>
-      <input type="checkbox" id="danger" />
-      Immediate danger
-    </label>
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="danger" />
+          <label for="danger">I am in immediate danger</label>
+        </div>
+      </div>
 
-    <button onclick="send()">Get Guidance</button>
+      <button onclick="getGuidance()" id="submitBtn">Get Emergency Guidance</button>
 
-    <pre id="output">Waiting…</pre>
+      <div id="output" style="display: none;"></div>
+    </div>
   </div>
 
 <script>
 const BACKEND_URL = "https://ai-emergency-agent-ck3n.onrender.com";
 
-async function send() {
+async function getGuidance() {
   const output = document.getElementById("output");
+  const submitBtn = document.getElementById("submitBtn");
+  
+  const emergencyType = document.getElementById("type").value;
+  const immediateDanger = document.getElementById("danger").checked;
 
-  output.textContent = "Sending request...";
+  // Show loading state
+  output.style.display = "block";
+  output.className = "output loading";
+  output.innerHTML = "<p>⏳ Generating emergency guidance...</p>";
+  submitBtn.disabled = true;
 
   try {
-    const res = await fetch(`${BACKEND_URL}/escalate`, {
+    const res = await fetch(`${BACKEND_URL}/plan`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        event: "fire",
-        confidence: 0.9,
-        status: "high_risk"
+        emergency_type: emergencyType,
+        immediate_danger: immediateDanger
       })
     });
 
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+
     const data = await res.json();
-    output.textContent = JSON.stringify(data, null, 2);
+    displayPlan(data);
+    
   } catch (err) {
-    output.textContent = "Error: " + err;
+    output.className = "output error";
+    output.innerHTML = `
+      <h3>⚠️ Error</h3>
+      <p><strong>Failed to generate guidance:</strong> ${err.message}</p>
+      <p style="margin-top: 12px; font-size: 14px;">
+        <strong>If you're in immediate danger, call 911 now!</strong>
+      </p>
+    `;
+  } finally {
+    submitBtn.disabled = false;
   }
 }
-</script>
 
+function displayPlan(plan) {
+  const output = document.getElementById("output");
+  output.className = "output";
+  
+  output.innerHTML = `
+    <h3>✅ Emergency Response Plan</h3>
+    
+    <div class="output-section">
+      <h4>Immediate Actions</h4>
+      <ul>
+        ${plan.immediate_actions.map(action => `<li>${action}</li>`).join('')}
+      </ul>
+    </div>
+    
+    <div class="output-section donts">
+      <h4>Do NOT Do</h4>
+      <ul>
+        ${plan.do_not_do.map(item => `<li>${item}</li>`).join('')}
+      </ul>
+    </div>
+    
+    <div class="output-section">
+      <h4>Evacuation Decision</h4>
+      <p style="color: #555; padding: 8px 0;">${plan.evacuation_decision}</p>
+    </div>
+    
+    <div class="output-section">
+      <h4>When to Call Emergency Services</h4>
+      <p style="color: #555; padding: 8px 0;">${plan.escalation_guidance}</p>
+    </div>
+    
+    <div class="disclaimer">
+      <strong>⚠️ Disclaimer:</strong> ${plan.safety_disclaimer}
+    </div>
+  `;
+}
+</script>
 
 </body>
 </html>
