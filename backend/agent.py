@@ -1,4 +1,5 @@
 import json
+import os
 from dotenv import load_dotenv
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
@@ -7,7 +8,9 @@ from models import EmergencyInput, EmergencyPlan
 load_dotenv()
 
 model = OpenAIChatModel(
-    "mistralai/mixtral-8x22b-instruct"
+    "mistralai/mixtral-8x22b-instruct",
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.environ["OPENROUTER_API_KEY"]
 )
 
 agent = Agent(
