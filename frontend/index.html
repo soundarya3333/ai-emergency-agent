@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Emergency Response Assistant</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #020617;
+      padding: 30px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+
+    select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #b91c1c;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #result {
+      margin-top: 30px;
+    }
+
+    .disclaimer {
+      margin-top: 20px;
+      font-size: 0.85em;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚨 AI Emergency Response Assistant</h1>
+    <p class="subtitle">Quick guidance for critical situations</p>
+
+    <form id="emergencyForm">
+      <label>Emergency Type</label>
+      <select id="emergencyType" required>
+        <option value="">Select</option>
+        <option value="fire">Fire</option>
+        <option value="flood">Flood</option>
+        <option value="earthquake">Earthquake</option>
+      </select>
+
+      <label>
+        <input type="checkbox" id="danger" />
+        Immediate danger present
+      </label>
+
+      <button type="submit">Generate Action Plan</button>
+    </form>
+
+    <div id="loading" class="hidden">⏳ Generating plan...</div>
+
+    <div id="result" class="hidden">
+      <h2>🧠 Emergency Action Plan</h2>
+
+      <h3>Immediate Actions</h3>
+      <ul id="actions"></ul>
+
+      <h3>Do Not Do</h3>
+      <ul id="donts"></ul>
+
+      <h3>Evacuation Decision</h3>
+      <p id="evacuation"></p>
+
+      <h3>Escalation Guidance</h3>
+      <p id="escalation"></p>
+
+      <p class="disclaimer" id="disclaimer"></p>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("emergencyForm");
+    const loading = document.getElementById("loading");
+    const result = document.getElementById("result");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const type = document.getElementById("emergencyType").value;
+      const danger = document.getElementById("danger").checked;
+
+      loading.classList.remove("hidden");
+      result.classList.add("hidden");
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/plan", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            emergency_type: type,
+            immediate_danger: danger
+          })
+        });
+
+        const data = await res.json();
+
+        document.getElementById("actions").innerHTML =
+          data.immediate_actions.map(a => `<li>${a}</li>`).join("");
+
+        document.getElementById("donts").innerHTML =
+          data.do_not_do.map(d => `<li>${d}</li>`).join("");
+
+        document.getElementById("evacuation").innerText = data.evacuation_decision;
+        document.getElementById("escalation").innerText = data.escalation_guidance;
+        document.getElementById("disclaimer").innerText = data.safety_disclaimer;
+
+        result.classList.remove("hidden");
+      } catch (err) {
+        alert("Backend not reachable. Is the server running?");
+      } finally {
+        loading.classList.add("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
