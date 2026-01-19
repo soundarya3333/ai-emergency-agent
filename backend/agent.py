@@ -4,11 +4,9 @@ from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
 from models import EmergencyInput, EmergencyPlan
 
-# ❌ DO NOT rely on load_dotenv on Render
-# load_dotenv() is fine locally but irrelevant in production
-
+# ✅ Correct initialization - model name as first positional argument
 model = OpenAIChatModel(
-    model="mistralai/mixtral-8x22b-instruct",
+    "mistralai/mixtral-8x22b-instruct",
     api_key=os.environ["OPENROUTER_API_KEY"],
     base_url="https://openrouter.ai/api/v1",
 )
@@ -28,6 +26,7 @@ Respond ONLY in valid JSON:
   "immediate_actions": [],
   "do_not_do": [],
   "evacuation_decision": "",
+  "escalation_guidance": "",
   "safety_disclaimer": ""
 }
 """
@@ -45,10 +44,11 @@ Immediate danger: {data.immediate_danger}
         return EmergencyPlan(**parsed)
 
     except Exception:
-        # HARD FAILSAFE (Render-safe)
+        # ✅ HARD FAILSAFE with ALL required fields
         return EmergencyPlan(
             immediate_actions=["Move to safety", "Follow authorities"],
             do_not_do=["Do not panic"],
             evacuation_decision="Follow local guidance",
+            escalation_guidance="Contact emergency services if in immediate danger",  # ✅ ADDED
             safety_disclaimer="General guidance only, not emergency services"
         )
