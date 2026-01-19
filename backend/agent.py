@@ -8,7 +8,7 @@ from models import EmergencyInput, EmergencyPlan
 os.environ["OPENAI_API_KEY"] = os.environ.get("OPENROUTER_API_KEY", "")
 os.environ["OPENAI_BASE_URL"] = "https://openrouter.ai/api/v1"
 
-# Now create model — only model name, no extra kwargs!
+# Model initialization - only model name
 model = OpenAIChatModel("mistralai/mixtral-8x22b-instruct")
 
 agent = Agent(
@@ -36,27 +36,42 @@ Rules:
 - Do NOT give medical advice
 - Do NOT predict outcomes
 - Always prioritize personal safety
+- Be concise and to the point
 """
 )
 
 async def generate_emergency_plan(data: EmergencyInput) -> EmergencyPlan:
+    """
+    Generate emergency response plan using AI with maximum 500 tokens limit.
+    """
     prompt = f"""
 Emergency type: {data.emergency_type}
 Immediate danger present: {data.immediate_danger}
 
 Generate the emergency response JSON.
+Be extremely concise.
 """
 
     try:
-        result = await agent.run(prompt)
-        parsed = json.loads(result.output)
+        result = await agent.run(
+            prompt,
+            max_tokens=500,           # ← This limits the response length
+            temperature=0.3,          # Lower = more focused/consistent
+        )
+        
+        # Clean up any possible extra whitespace
+        output_text = result.output.strip()
+        
+        parsed = json.loads(output_text)
         return EmergencyPlan(**parsed)
+    
     except Exception as e:
-        print("AI generation failed:", str(e))  # ← helps debugging on Render
+        print("AI generation failed:", str(e))
+        # Fallback response - safe default plan
         return EmergencyPlan(
             immediate_actions=[
-                "Move to a safe location",
-                "Follow official instructions"
+                "Move to a safe location immediately",
+                "Follow instructions from emergency services"
             ],
             do_not_do=[
                 "Do not panic",
@@ -64,5 +79,5 @@ Generate the emergency response JSON.
             ],
             evacuation_decision="Follow local authority guidance",
             escalation_guidance="Contact emergency services if in immediate danger",
-            safety_disclaimer="This is general guidance only and not a substitute for emergency services."
+            safety_disclaimer="This is general guidance only and not a substitute for professional emergency services."
         )
