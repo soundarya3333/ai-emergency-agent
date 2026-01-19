@@ -4,7 +4,6 @@ from pydantic_ai.models.openai import OpenAIModel
 from models import EmergencyInput, EmergencyPlan
 
 # Set environment variables for OpenAI-compatible API
-# Render will provide these from your environment variables
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "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")
 os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_BASE_URL", "https://openrouter.ai/api/v1")
 
@@ -16,12 +15,12 @@ if not OPENAI_API_KEY:
 print(f"✓ API Key loaded: {OPENAI_API_KEY[:15]}...")
 print(f"✓ Base URL: {os.getenv('OPENAI_BASE_URL')}")
 
-# Configure OpenRouter model - it reads from environment variables
+# Configure model - reads from environment variables automatically
 model = OpenAIModel("mistralai/mistral-7b-instruct:free")
 
+# Create agent WITHOUT result_type (deprecated)
 agent = Agent(
-    model=model,
-    result_type=EmergencyPlan,
+    model,
     system_prompt="""
 You are an emergency response assistant.
 
@@ -57,7 +56,7 @@ Generate a clear, actionable emergency response plan in JSON format.
 
     try:
         print(f"Generating plan for {data.emergency_type}...")
-        result = await agent.run(prompt)
+        result = await agent.run(prompt, result_type=EmergencyPlan)
         print("✓ Plan generated successfully")
         return result.data
     
