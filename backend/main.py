@@ -18,3 +18,10 @@ app.add_middleware(
 @app.post("/plan", response_model=EmergencyPlan)
 async def create_plan(input_data: EmergencyInput):
     return await generate_emergency_plan(input_data)
+@app.post("/escalate")
+async def escalate(payload: dict):
+    return {
+        "decision": "Escalation triggered",
+        "received": payload
+    }
+
