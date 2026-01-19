@@ -2,162 +2,85 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>AI Emergency Response Assistant</title>
+  <title>AI Emergency Guide</title>
   <style>
     body {
-      font-family: system-ui, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
       padding: 40px;
     }
-
-    .container {
-      max-width: 600px;
+    .card {
+      max-width: 500px;
       margin: auto;
-      background: #020617;
-      padding: 30px;
-      border-radius: 12px;
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-
-    h1 {
-      margin-top: 0;
-    }
-
-    .subtitle {
-      color: #94a3b8;
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-    }
-
-    select {
+    select, button {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
+      padding: 10px;
+      margin-top: 12px;
+      font-size: 16px;
     }
-
-    button {
-      margin-top: 20px;
-      width: 100%;
+    pre {
+      background: #111;
+      color: #0f0;
       padding: 12px;
-      background: #dc2626;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #b91c1c;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    #result {
-      margin-top: 30px;
-    }
-
-    .disclaimer {
       margin-top: 20px;
-      font-size: 0.85em;
-      color: #9ca3af;
+      overflow-x: auto;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🚨 AI Emergency Response Assistant</h1>
-    <p class="subtitle">Quick guidance for critical situations</p>
 
-    <form id="emergencyForm">
-      <label>Emergency Type</label>
-      <select id="emergencyType" required>
-        <option value="">Select</option>
-        <option value="fire">Fire</option>
-        <option value="flood">Flood</option>
-        <option value="earthquake">Earthquake</option>
-      </select>
+  <div class="card">
+    <h2>🚨 Emergency Assistant</h2>
 
-      <label>
-        <input type="checkbox" id="danger" />
-        Immediate danger present
-      </label>
+    <label>Emergency Type</label>
+    <select id="type">
+      <option value="fire">Fire</option>
+      <option value="flood">Flood</option>
+      <option value="earthquake">Earthquake</option>
+    </select>
 
-      <button type="submit">Generate Action Plan</button>
-    </form>
+    <label>
+      <input type="checkbox" id="danger" />
+      Immediate danger
+    </label>
 
-    <div id="loading" class="hidden">⏳ Generating plan...</div>
+    <button onclick="send()">Get Guidance</button>
 
-    <div id="result" class="hidden">
-      <h2>🧠 Emergency Action Plan</h2>
-
-      <h3>Immediate Actions</h3>
-      <ul id="actions"></ul>
-
-      <h3>Do Not Do</h3>
-      <ul id="donts"></ul>
-
-      <h3>Evacuation Decision</h3>
-      <p id="evacuation"></p>
-
-      <h3>Escalation Guidance</h3>
-      <p id="escalation"></p>
-
-      <p class="disclaimer" id="disclaimer"></p>
-    </div>
+    <pre id="output">Waiting…</pre>
   </div>
 
-  <script>
-    const form = document.getElementById("emergencyForm");
-    const loading = document.getElementById("loading");
-    const result = document.getElementById("result");
+<script>
+const BACKEND_URL = "https://ai-emergency-agent-ck3n.onrender.com";
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+async function send() {
+  const type = document.getElementById("type").value;
+  const danger = document.getElementById("danger").checked;
+  const output = document.getElementById("output");
 
-      const type = document.getElementById("emergencyType").value;
-      const danger = document.getElementById("danger").checked;
+  output.textContent = "Loading… (cold start may take ~30s)";
 
-      loading.classList.remove("hidden");
-      result.classList.add("hidden");
-
-      try {
-        const res = await fetch("http://127.0.0.1:8000/plan", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            emergency_type: type,
-            immediate_danger: danger
-          })
-        });
-
-        const data = await res.json();
-
-        document.getElementById("actions").innerHTML =
-          data.immediate_actions.map(a => `<li>${a}</li>`).join("");
-
-        document.getElementById("donts").innerHTML =
-          data.do_not_do.map(d => `<li>${d}</li>`).join("");
-
-        document.getElementById("evacuation").innerText = data.evacuation_decision;
-        document.getElementById("escalation").innerText = data.escalation_guidance;
-        document.getElementById("disclaimer").innerText = data.safety_disclaimer;
-
-        result.classList.remove("hidden");
-      } catch (err) {
-        alert("Backend not reachable. Is the server running?");
-      } finally {
-        loading.classList.add("hidden");
-      }
+  try {
+    const res = await fetch(`${BACKEND_URL}/plan`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        emergency_type: type,
+        immediate_danger: danger
+      })
     });
-  </script>
+
+    const data = await res.json();
+    output.textContent = JSON.stringify(data, null, 2);
+  } catch (err) {
+    output.textContent = "Error: " + err;
+  }
+}
+</script>
+
 </body>
 </html>
