@@ -8,8 +8,8 @@ from models import EmergencyInput, EmergencyPlan
 os.environ["OPENAI_BASE_URL"] = "https://openrouter.ai/api/v1"
 # The client will automatically use OPENROUTER_API_KEY from environment
 
-# Using a free model as requested
-model = OpenAIChatModel("nvidia/nemotron-3-nano-30b-a3b:free")
+# Using a valid free model (replaced invalid one with a current free model from OpenRouter)
+model = OpenAIChatModel("mistralai/devstral-2512:free")
 
 agent = Agent(
     model=model,
