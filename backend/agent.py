@@ -1,25 +1,23 @@
 import os
-import json
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
 from models import EmergencyInput, EmergencyPlan
 
-# Get API key from environment (set in Render)
+# Set environment variables for OpenAI-compatible API
+# Render will provide these from your environment variables
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "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")
+os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_BASE_URL", "https://openrouter.ai/api/v1")
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://openrouter.ai/api/v1")
 
 if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY environment variable not set in Render")
 
 print(f"✓ API Key loaded: {OPENAI_API_KEY[:15]}...")
-print(f"✓ Base URL: {OPENAI_BASE_URL}")
+print(f"✓ Base URL: {os.getenv('OPENAI_BASE_URL')}")
 
-# Configure OpenRouter model
-model = OpenAIModel(
-    "mistralai/mistral-7b-instruct:free",
-    base_url=OPENAI_BASE_URL,
-    api_key=OPENAI_API_KEY,
-)
+# Configure OpenRouter model - it reads from environment variables
+model = OpenAIModel("mistralai/mistral-7b-instruct:free")
 
 agent = Agent(
     model=model,
